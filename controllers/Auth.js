@@ -7,7 +7,7 @@ const { userServices, profileServices } = require("../services");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
-const sendOTP = async () => {
+const sendOTP = async (req,res) => {
   try {
     // takee email from user
     const { email } = req.body;
@@ -48,7 +48,7 @@ const sendOTP = async () => {
   }
 };
 
-const SingUp = async () => {
+const SingUp = async (req,res) => {
   try {
     //take data from user
     const {
@@ -134,7 +134,7 @@ const SingUp = async () => {
   }
 };
 
-const Login = async () => {
+const Login = async (req,res) => {
   try {
     // get data from user
     const { email, password } = req.body;
@@ -185,7 +185,7 @@ const Login = async () => {
   }
 };
 
-const changePassword = async () => {
+const changePassword = async (req,res) => {
     // get data from user
     // get old password , newpassowrd , confirmPassword,
     // validation
