@@ -16,13 +16,19 @@ const userSchema = mongoose.Schema({
     required: true,
     trim: true,
   },
+  token: {
+    type: String,
+  },
+  resetPasswordExpires: {
+    type: Date,
+  },
   password: {
     type: String,
     required: true,
   },
   accountType: {
     type: String,
-    enum: ["Admin", "Student", "Instrutor"],
+    enum: ["Admin", "Student", "Instructor"],
     required: true,
   },
   additionalDetails: {

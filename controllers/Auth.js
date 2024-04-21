@@ -123,7 +123,7 @@ const SingUp = async () => {
     // return response
     (SuccessResponse.data = user),
       (SuccessResponse.message = "User Register Successfully");
-    res.status(StatusCodes.OK).json({ SuccessResponse });
+    return res.status(StatusCodes.OK).json({ SuccessResponse });
   } catch (error) {
     errorResponse.error = error;
     errorResponse.message = "User can not Register";
@@ -154,7 +154,7 @@ const Login = async () => {
     if (bcrypt.compare(password, user.password)) {
       const payload = {
         email: user.email,
-        role: user.role,
+        role: user.accountType,
         id: user._id,
       };
       const token = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -171,7 +171,7 @@ const Login = async () => {
     };
     SuccessResponse.message = "User successfully Logged";
     SuccessResponse.data = user;
-    res
+    return res
       .cookie("token", token, options)
       .status(StatusCodes.OK)
       .json({ SuccessResponse });
@@ -185,7 +185,7 @@ const Login = async () => {
   }
 };
 
-const chackPassword = async () => {
+const changePassword = async () => {
     // get data from user
     // get old password , newpassowrd , confirmPassword,
     // validation
