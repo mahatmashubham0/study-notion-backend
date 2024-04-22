@@ -4,17 +4,19 @@ const tagSchema = mongoose.Schema({
   name: {
     type: Number,
     required: true,
-    trim: true
+    trim: true,
   },
   description: {
     type: String,
     required: true,
   },
-  course: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: "Course",
-  },
+  courses: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Course",
+    },
+  ],
 });
 
 // this user is exactly User model and struture of user table and inside this user ("RatingAndReview" , ratingAndReviewSchema) it is name of collection
