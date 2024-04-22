@@ -1,13 +1,13 @@
-const {ProfileRespository} = require("../respository");
+const { SectionRespository } = require("../respository");
 const { StatusCodes } = require("http-status-codes");
-const AppError = require("../utils/app-error");
+// const AppError = require("../utils/app-error");
 
-const profileRespository = new ProfileRespository();
+const sectionRespository = new SectionRespository();
 
-async function createProfile(data) {
+async function createSection(data) {
   try {
-    const profile = await profileRespository.create();
-    return profile;
+    const sections = await sectionRespository.create(data);
+    return sections;
   } catch (error) {
     // if (error.name == "SequelizeValidationError") {
     //   let explanation = [];
@@ -17,17 +17,16 @@ async function createProfile(data) {
     //   throw new AppError(explanation, StatusCodes.BAD_REQUEST);
     // }
     throw new AppError(
-      "cannot a create a new user",
+      "cannot a create a new section",
       StatusCodes.INTERNAL_SERVER_ERROR
     );
   }
 }
 
-
-async function updateProfile(id , data) {
+async function updateSection(id , data) {
   try {
-    const profile = await profileRespository.findByIdAndUpdate(id , data);
-    return profile;
+    const sections = await sectionRespository.findByIdAndUpdate(id , data);
+    return sections;
   } catch (error) {
     // if (error.name == "SequelizeValidationError") {
     //   let explanation = [];
@@ -37,16 +36,16 @@ async function updateProfile(id , data) {
     //   throw new AppError(explanation, StatusCodes.BAD_REQUEST);
     // }
     throw new AppError(
-      "cannot a create a new profile",
+      "cannot a create a new section",
       StatusCodes.INTERNAL_SERVER_ERROR
     );
   }
 }
 
-async function deleteProfile(id) {
+async function deleteSection(id) {
   try {
-    const profile = await profileRespository.findByIdAndDelete(id);
-    return profile;
+    const section = await sectionRespository.findByIdAndDelete(id);
+    return section;
   } catch (error) {
     // if (error.name == "SequelizeValidationError") {
     //   let explanation = [];
@@ -56,14 +55,28 @@ async function deleteProfile(id) {
     //   throw new AppError(explanation, StatusCodes.BAD_REQUEST);
     // }
     throw new AppError(
-      "cannot a create a new profile",
+      "cannot a create a new section",
       StatusCodes.INTERNAL_SERVER_ERROR
     );
   }
 }
+
+async function getAllSections() {
+  try {
+    const sections = await sectionRespository.getAll();
+    return sections;
+  } catch (error) {
+    throw new AppError(
+      "cannot a fetch all section",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+}
+
 
 module.exports = {
-    createProfile,
-    updateProfile,
-    deleteProfile
-}
+  createSection,
+  getAllSections,
+  updateSection,
+  deleteSection
+};
