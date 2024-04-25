@@ -1,4 +1,5 @@
-const Tag = require("../models/Tag");
+const Category = require("../models/Category");
+const Tag = require("../models/Category");
 const { tagServices } = require("../services");
 const { SuccessResponse, errorResponse } = require("../utils/common");
 const { StatusCodes } = require("http-status-codes");
@@ -26,7 +27,7 @@ const createTag = async (req, res) => {
     return res.status(StatusCodes.CREATED).json({ SuccessResponse });
   } catch (error) {
     errorResponse.message = "error generating while creatig tags";
-    errorResponse.error =  error
+    errorResponse.error = error;
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ errorResponse });
@@ -41,7 +42,46 @@ const getAllTags = async () => {
     return res.status(StatusCodes.CREATED).json({ SuccessResponse });
   } catch (error) {
     errorResponse.message = "error generating while fetchig all tags";
-    errorResponse.error =  error
+    errorResponse.error = error;
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ errorResponse });
+  }
+};
+
+const categoryPageDetails = async () => {
+  try {
+    // get categoryId
+    const { categoryId } = req.body;
+
+    // get all courses for particular category
+    const selectedCategory = await Category.findById(categoryId)
+      .populate("courses")
+      .exec();
+
+    // validation
+    if (!selectedCategory) {
+      errorResponse.message = "Course is not present for particular category";
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ errorResponse });
+    }
+    
+    // get different category courses
+    const diffCategoryCourses = await Category.find({
+                                            _id: {$ne: categoryId}
+                                           }).populate("Courses").exec();
+   
+    // get top selling course
+
+
+    // return response
+    SuccessResponse.data = {selectedCategory , diffCategoryCourses};
+    SuccessResponse.message = "Sucessfully get all the tag";
+    return res.status(StatusCodes.CREATED).json({ SuccessResponse });
+  } catch (error) {
+    errorResponse.message = "error generating while fetchig specific tags";
+    errorResponse.error = error;
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ errorResponse });
@@ -50,5 +90,6 @@ const getAllTags = async () => {
 
 module.exports = {
   createTag,
-  getAllTags
+  getAllTags,
+  categoryPageDetails,
 };

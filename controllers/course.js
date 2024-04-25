@@ -95,7 +95,7 @@ const createCourse = async (req, res) => {
     return res.status(StatusCodes.CREATED).json({ SuccessResponse });
   } catch (error) {
     errorResponse.message = "error generating while creatig Course";
-    errorResponse.error =  error
+    errorResponse.error = error;
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ errorResponse });
@@ -110,7 +110,53 @@ const getAllCourse = async () => {
     return res.status(StatusCodes.CREATED).json({ SuccessResponse });
   } catch (error) {
     errorResponse.message = "error generating while fetchig all course";
-    errorResponse.error = error
+    errorResponse.error = error;
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ errorResponse });
+  }
+};
+
+const getCourse = async () => {
+  try {
+    // fetch the data
+    const { courseId } = req.body;
+
+    //
+    const courses = await Course.findById(
+      { _id: courseId }
+      .populate(
+        {
+        path: "instructor",
+        populate: { path: "additionalDetails" },
+        }
+      ).populate("category")
+      .populate("ratingAndReviews")
+      .populate(
+        {
+          path: "courseContent",
+          popolate:{
+            path: "subSection"
+          }
+        }
+      )
+    ).exec();
+
+    // Validation
+    if (!courses) {
+      errorResponse.message = "Data Count not fetch";
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ errorResponse });
+    }
+
+    // return respone 
+    SuccessResponse.data = courses;
+    SuccessResponse.message = "Sucessfully get all the Courses with population";
+    return res.status(StatusCodes.CREATED).json({ SuccessResponse });
+  } catch (error) {
+    errorResponse.message = "error generating while fetchig course";
+    errorResponse.error = error;
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ errorResponse });
@@ -120,4 +166,5 @@ const getAllCourse = async () => {
 module.exports = {
   createCourse,
   getAllCourse,
+  getCourse,
 };
