@@ -21,7 +21,6 @@ mailSender = async (email, title, body) => {
         html: `${body}`, // html body means otp value come from Body
       });
 
-      console.log(info);
       return info;
 
   } catch (error) {
