@@ -3,7 +3,7 @@ const Otp = require("../models/Otp");
 const { StatusCodes } = require("http-status-codes");
 const { SuccessResponse, errorResponse } = require("../utils/common");
 const bcrypt = require("bcrypt");
-const { userServices, profileServices } = require("../services");
+// const { userServices, profileServices } = require("../services");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
@@ -11,6 +11,7 @@ const sendOTP = async (req,res) => {
   try {
     // takee email from user
     const { email } = req.body;
+    console.log("Email:" , email)
 
     // otp generated here
     const OTP = otpGenerator.generate(6, {
@@ -23,23 +24,28 @@ const sendOTP = async (req,res) => {
 
     // check it is Unique OTP or not
     let checkUniqueOTp = await Otp.findOne({ OTP });
+
+    // find unique otp that not present on database
     while (checkUniqueOTp) {
       const OTP = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
         lowerCaseAlphabets: false,
         specialChars: false,
       });
+      checkUniqueOTp = await Otp.findOne({ OTP });
     }
-    checkUniqueOTp = await Otp.findOne({ OTP });
-
-    const payLoadData = { email, OTP };
-    const otpBody = await Otp.create({ payLoadData });
+   
+    // create entry in otp models
+    const payLoadData = { email, otp:OTP };
+    const otpBody = await Otp.create({ email , otp: OTP });
     console.log(otpBody);
 
+    // return response
     SuccessResponse.data = OTP;
     SuccessResponse.message = "Otp is Generated Successfully";
     return res.status(StatusCodes.OK).json({ SuccessResponse });
   } catch (error) {
+    console.log("Error")
     console.log(error.message);
     errorResponse.error = error;
     return res
@@ -82,6 +88,8 @@ const SingUp = async (req,res) => {
     const recentOtpObject = Otp.findOne({ email })
       .sort({ createdAt: -1 })
       .limit(1);
+
+    // find Otp
     if (!recentOtpObject) {
       errorResponse.message = "Otp Not Fund";
       return res
@@ -100,7 +108,7 @@ const SingUp = async (req,res) => {
     // hash password
     const hashPassword = bcrypt.hash(password, 10);
 
-    // create dome profiledetails
+    // create done profiledetails
     const profiledetails = await profileServices.createProfile({
       gender: null,
       dateOfBirth: null,
@@ -197,5 +205,6 @@ const changePassword = async (req,res) => {
 module.exports = {
   sendOTP,
   SingUp,
-  Login
+  Login,
+  changePassword
 };
