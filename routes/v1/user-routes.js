@@ -1,5 +1,6 @@
 const express = require('express')
-const {Login , sendOTP , SingUp } = require('../../controllers/Auth')
+const {Login , sendOTP , SingUp , changePassword } = require('../../controllers/Auth');
+const { auth } = require('../../middlewares/auth');
 // const {checkUserExit} = require('../../middleware')
 
 const router = express.Router();
@@ -10,32 +11,27 @@ const router = express.Router();
 // ********************************************************************************************************
 
 // Route for user login
-// router.post("/login", Login)
+router.post("/login", Login)
 
 // Route for user signup
-// router.post("/signup", SingUp)
+router.post("/signup", SingUp)
 
 // Route for sending OTP to the user's email
 
 router.post("/sendotp", sendOTP)
 
 // Route for Changing the password
-// router.post("/changepassword", auth, authController.changePassword)
+router.post("/changepassword",auth , changePassword)
 
 
-// router.post('/' , checkUserExit.checkUserExit,
-//    userController.createUser)
+// ********************************************************************************************************
+//                                      Reset Password
+// ********************************************************************************************************
 
-// router.post('/signup' , checkUserExit.checkUserExit,
-//    userController.RegisterUser)
-// router.get('/login' , userController.loginUser)
+// Route for generating a reset password token
+// router.post("/reset-password-token", resetPasswordToken)
 
-// router.get('/' , userController.getAllUser)
-
-// router.get('/:id' , userController.getUser)
-
-// router.delete('/:id' , userController.destoryUser)
-
-// router.patch('/:id' , userController.updateUser)
+// Route for resetting user's password after verification
+// router.post("/reset-password", resetPassword)
 
 module.exports = router
