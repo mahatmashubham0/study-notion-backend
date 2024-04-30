@@ -1,12 +1,12 @@
 const express = require('express')
-// const booksRoutes = require('./book_routes')
 const usersRoutes = require('./user-routes')
+const profileRoutes = require('./profile-routes')
 
 const router = express.Router();
 
 router.use('/auth' , usersRoutes)
 
-// router.use('/profile' , usersRoutes)
+router.use('/profile' , profileRoutes)
 
 // router.use('/course' , usersRoutes)
 

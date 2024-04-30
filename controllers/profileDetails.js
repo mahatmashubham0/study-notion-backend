@@ -1,18 +1,19 @@
 const Profile = require("../models/Profile");
 const User = require("../models/User");
-const { profileServices } = require("../services");
 const { StatusCodes } = require("http-status-codes");
 const { errorResponse, SuccessResponse } = require("../utils/common");
 
-const updateProfile = async () => {
+// update the profile details
+const updateProfile = async (req , res) => {
   try {
     // fetch data from UL
     const { gender, about = "", dateOfBirth = "" } = req.body;
     const UserId = req.user.id;
+    console.log("userId ",UserId)
     const phoneNuber = req.body.contactNumber;
 
     // validation
-    if (!gender || !about || !dateOfBirth || !contactNumber) {
+    if (!gender || !about || !dateOfBirth || !phoneNuber) {
       errorResponse.message = "Please fill all field";
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -21,15 +22,18 @@ const updateProfile = async () => {
 
     //find User and then get the id of ProfileDetails column
     const userDetails = await User.findById(UserId);
-    const profileId = userDetails.id;
+
+    // get the profile info from user
+    const profileId = userDetails.additionalDetails;
     const profileDetails = await Profile.findById(profileId);
+    
 
     // upate the profile
     profileDetails.gender = gender; // check that we can update this way also
     profileDetails.about = about;
     profileDetails.dateOfBirth = dateOfBirth;
     profileDetails.contactNumber = phoneNuber;
-    profileDetails.save();
+    await profileDetails.save();
 
     // another way to update
     // await = profileServices.updateProfile({_id:profileId} , {gender , about , dateOfBirth , contactNumber:phoneNuber})
@@ -47,7 +51,8 @@ const updateProfile = async () => {
   }
 };
 
-const deletAccount = async () => {
+// delete the User 
+const deletAccount = async (req , res) => {
   try {
     //get data
     const userId = req.user.id;
@@ -61,7 +66,7 @@ const deletAccount = async () => {
     }
 
     // first delete the profile and then delete user
-    await profileServices.deleteProfile(userDetails.additionalDetails);
+    await Profile.findByIdAndDelete(userDetails.additionalDetails);
     const deleteAccount = await User.findByIdAndDelete({
       _id: userDetails._id,
     }); // {_id:userId} this is also can written
@@ -76,13 +81,14 @@ const deletAccount = async () => {
   }
 };
 
-const getUserById = async () => {
+// get User data from Id
+const getUserById = async (req , res) => {
   try {
     // get user Id
     const UserId = req.user.id;
 
     //validation and get data according userId
-    const userDetail = User.findById(UserId).populate("additionalDetails").exec(); // populate used for extra data which is associated with doucment.object.id
+    const userDetail =await User.findById(UserId).populate("additionalDetails").exec(); // populate used for extra data which is associated with doucment.object.id
 
     // return response
     SuccessResponse.message = "Sucessfully get data according the Id";

@@ -43,7 +43,7 @@ exports.auth = async (req,res,next) => {
 };
 
 // is Student or not
-exports.isStudent = async () => {
+exports.isStudent = async (req,res,next) => {
   try {
     if(req.user.role !== "Student") {
       errorResponse.message = "this is only for Student"
@@ -59,7 +59,7 @@ exports.isStudent = async () => {
   }
 }
 
-exports.isInstructor = async () => {
+exports.isInstructor = async (req,res,next) => {
   try {
     if(req.user.accountType !== "Instructor") {
       errorResponse.message = "this is only for Instructor"
@@ -75,7 +75,7 @@ exports.isInstructor = async () => {
   }
 }
 
-exports.isAdmin = async () => {
+exports.isAdmin = async (req,res,next) => {
   try {
     if(req.user.accountType !== "isAdmin") {
       errorResponse.message = "this is only for isAdmin"

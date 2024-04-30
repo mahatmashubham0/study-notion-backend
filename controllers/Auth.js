@@ -169,7 +169,7 @@ const Login = async (req, res) => {
     const user = await User.findOne({ email }).populate("additionalDetails");
 
     // generate jwt token and matching the password
-    if (bcrypt.compare(password, user.password)) {
+    if (await bcrypt.compare(password, user.password)) {
       // bcrypt.compare(password, user.password) run this code then execute the if block
       const payload = {
         email: user.email,
@@ -185,7 +185,6 @@ const Login = async (req, res) => {
       (user.token = token), (user.password = undefined);
     } else {
       errorResponse.message = "User passowrd not match";
-      errorResponse.error = error;
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ errorResponse });

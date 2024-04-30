@@ -1,6 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const User = require("../models/User");
-const mailSender = require("../utils/main-sender");
+const mailSender = require("../utils/mail-sender");
 const { errorResponse, SuccessResponse } = require("../utils/common");
 const bcrypt = require("bcrypt");
 
@@ -16,14 +16,15 @@ const resetPasswordToken = async (req, res) => {
       return res.status(StatusCodes.NOT_FOUND).json({ errorResponse });
     }
 
-    // generate token using this token we can create the expire time
+    // generate token using crypto 
     const token = crypto.randomUUID();
-    console.log("token for Sending mail", token);
+    console.log("token is generated:", token);
 
     // update user database by adding the token and expiration time
     const updateDetails = await User.findOneAndUpdate(
-      { email: email },
-      { token: token, resetPasswordToken1: Date.now() + 5 * 60 * 1000 },
+      {email: email},
+      { token: token}, 
+      {resetPasswordExpires: Date.now() + 5 * 60 * 1000 },
       { noew: true }
     );
 
@@ -33,13 +34,14 @@ const resetPasswordToken = async (req, res) => {
     // using above token perform sending mail functionality send mail on email
     await mailSender(
       email,
-      "Password reset Link",
-      `Password reset Link ${url}`
+			"Password Reset",
+			`Your Link for email verification is ${url}. Please click this url to reset your password.`
     );
 
     // return response
     SuccessResponse.message =
       "Email sent successfully , please check email and update password";
+      SuccessResponse.data = updateDetails
     return res.status(StatusCodes.OK).json({ SuccessResponse });
   } catch (error) {
     errorResponse.message =
@@ -58,13 +60,14 @@ const resetPassword = async (req, res) => {
     const { password, confirmPassword, token } = req.body;
 
     // validation
-    if (password == confirmPassword) {
+    if (password !== confirmPassword) {
       errorResponse.message = "password not matching";
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ errorResponse });
     }
 
     // get user detail using token && if no token --> invalid token
     const user = await User.findOne({ token: token });
+    console.log(token)
     if (!user) {
       errorResponse.message = "token is invalid";
       return res.status(StatusCodes.NOT_FOUND).json({ errorResponse });

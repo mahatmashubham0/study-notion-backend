@@ -1,10 +1,8 @@
 const Category = require("../models/Category");
-const Tag = require("../models/Category");
-const { tagServices } = require("../services");
 const { SuccessResponse, errorResponse } = require("../utils/common");
 const { StatusCodes } = require("http-status-codes");
 
-const createTag = async (req, res) => {
+const createCategory = async (req, res) => {
   try {
     // get data from user
     const { name, description } = req.body;
@@ -13,20 +11,20 @@ const createTag = async (req, res) => {
     if (!name || !description) {
       errorResponse.message = "Please fill all field";
       return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .status(StatusCodes.NOT_FOUND)
         .json({ errorResponse });
     }
 
     // create entry in db
-    const tag = await tagServices.createTag({
+    const category = await Category.create({
       name: name,
       description: description,
     });
-    SuccessResponse.message = "Sucessfully created the tag";
-    SuccessResponse.data = tag;
+    SuccessResponse.message = "Sucessfully created the category";
+    SuccessResponse.data = category;
     return res.status(StatusCodes.CREATED).json({ SuccessResponse });
   } catch (error) {
-    errorResponse.message = "error generating while creatig tags";
+    errorResponse.message = "error generating while creatig category";
     errorResponse.error = error;
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -34,10 +32,10 @@ const createTag = async (req, res) => {
   }
 };
 
-const getAllTags = async () => {
+const getAllCategories = async () => {
   try {
-    const tags = tagServices.getAllTags();
-    SuccessResponse.data = tags;
+    const categories = tagServices.getAllTags();
+    SuccessResponse.data = categories;
     SuccessResponse.message = "Sucessfully get all the tag";
     return res.status(StatusCodes.CREATED).json({ SuccessResponse });
   } catch (error) {
@@ -89,7 +87,7 @@ const categoryPageDetails = async () => {
 };
 
 module.exports = {
-  createTag,
-  getAllTags,
+  createCategory,
+  getAllCategories,
   categoryPageDetails,
 };
