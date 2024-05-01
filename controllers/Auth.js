@@ -173,7 +173,7 @@ const Login = async (req, res) => {
       // bcrypt.compare(password, user.password) run this code then execute the if block
       const payload = {
         email: user.email,
-        role: user.accountType,
+        accountType: user.accountType,
         id: user._id,
       };
       token = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -193,7 +193,7 @@ const Login = async (req, res) => {
     // CREATE cookei and send response
     const options = {
       expires: new Date(Date.now() + 3 * 34 * 60 * 1000),
-      httpeOnly: true,
+      httpOnly: true,
     };
     SuccessResponse.message = "User successfully Logged";
     SuccessResponse.data = { user, token };

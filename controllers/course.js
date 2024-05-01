@@ -1,32 +1,36 @@
-const Tag = require("../models/Tag");
-const { courseServices } = require("../services");
 const { SuccessResponse, errorResponse } = require("../utils/common");
 const { StatusCodes } = require("http-status-codes");
 const imageUploadToCloudinary = require("../utils/image-uploader");
 const User = require("../models/User");
+const Category = require("../models/Category");
+const Course = require("../models/Course");
 
 const createCourse = async (req, res) => {
   try {
     // get data from user
-    const { courseName, courseDescription, price, whatYouWillLeaen, tag } =
-      req.body;
+    let { courseName, courseDescription, price, whatYouWillLearn, tag , category, status } = req.body;
 
     // get thumbnails
-    const { thumbnails } = req.files.thumbnailsFiles;
+    const thumbnails  = req.body.thumbnailImage;
 
     // check validation
     if (
       !courseName ||
       !courseDescription ||
       !price ||
-      !whatYouWillLeaen ||
+      !whatYouWillLearn ||
       !tag ||
-      !thumbnails
+      !thumbnails ||
+      !category
     ) {
       errorResponse.message = "Please fill all field";
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ errorResponse });
+    }
+
+    if (!status || status === undefined) {
+      status = "Draft"
     }
 
     // check instructor beacuse we want to store instructor object in course db
@@ -42,29 +46,33 @@ const createCourse = async (req, res) => {
       errorResponse.message = "instructor not found";
       return res.status(StatusCodes.NOT_FOUND).json({ errorResponse });
     }
-
-    // check given tags is valid or not
-    const tagDetails = await Tag.findById(tag); // when we use the findById we dont need to give ({}) parameter only should give () and pass the unique data
-    if (!tagDetails) {
-      errorResponse.message = "Tag not found";
+   
+    // check given category is valid or not
+    const categoryDetails = await Category.findById(category); // when we use the findById we dont need to give ({}) parameter only should give () and pass the unique data
+    if (!categoryDetails) {
+      errorResponse.message = "category not found";
       return res.status(StatusCodes.NOT_FOUND).json({ errorResponse });
     }
 
+
+
     //image upload on cloudinary
-    const thumbnailsImage = await imageUploadToCloudinary(
-      thumbnails,
-      process.env.FOLDER_NAME
-    );
+    // const thumbnailsImage = await imageUploadToCloudinary(
+    //   thumbnails,
+    //   process.env.FOLDER_NAME
+    // );
 
     //create the entry in the db
-    const newCourse = await courseServices.createCourse({
+    const newCourse = await Course.create({
       courseName,
       courseDescription,
       price,
-      whatYouWillLeaen,
+      whatYouWillLearn,
       instructor: instructorDetails._id,
-      tag: tagDetails._id,
-      thumbnails: thumbnailsImage.secure_url,
+      tag,
+      category,
+      status,
+      thumbnails: "i will fix it",
     });
 
     // update user that user is instructor
@@ -80,8 +88,8 @@ const createCourse = async (req, res) => {
     );
 
     //  update the tag schema
-    await Tag.findByIdAndUpdate(
-      { _id: tagDetails._id },
+    await Category.findByIdAndUpdate(
+      { _id: categoryDetails._id },
       {
         $push: {
           courses: newCourse._id,
@@ -96,13 +104,14 @@ const createCourse = async (req, res) => {
   } catch (error) {
     errorResponse.message = "error generating while creatig Course";
     errorResponse.error = error;
+    console.log(error)
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ errorResponse });
   }
 };
 
-const getAllCourse = async () => {
+const getAllCourse = async (req, res) => {
   try {
     const courses = courseServices.getAllCourse();
     SuccessResponse.data = courses;
@@ -117,21 +126,22 @@ const getAllCourse = async () => {
   }
 };
 
-const getCourse = async () => {
+const getCourseDetails = async (req, res) => {
   try {
     // fetch the data
     const { courseId } = req.body;
 
-    //
+    // fetch the data in nested way
     const courses = await Course.findById(
-      { _id: courseId }
+      { _id: courseId })
       .populate(
         {
         path: "instructor",
         populate: { path: "additionalDetails" },
         }
-      ).populate("category")
-      .populate("ratingAndReviews")
+      )
+      .populate("category")
+      // .populate("ratingAndReviews")
       .populate(
         {
           path: "courseContent",
@@ -140,7 +150,7 @@ const getCourse = async () => {
           }
         }
       )
-    ).exec();
+    .exec();
 
     // Validation
     if (!courses) {
@@ -166,5 +176,5 @@ const getCourse = async () => {
 module.exports = {
   createCourse,
   getAllCourse,
-  getCourse,
+  getCourseDetails,
 };

@@ -2,7 +2,7 @@ const { default: mongoose } = require("mongoose");
 
 const categorySchema = mongoose.Schema({
   name: {
-    type: Number,
+    type: String,
     required: true,
     trim: true,
   },
@@ -13,7 +13,6 @@ const categorySchema = mongoose.Schema({
   courses: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: "Course",
     },
   ],

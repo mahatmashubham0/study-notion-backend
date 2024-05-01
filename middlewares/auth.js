@@ -7,14 +7,14 @@ const { StatusCodes } = require("http-status-codes");
 // this auth check the authentication of the user
 exports.auth = async (req,res,next) => {
   try {
-    // extract the token and
-    const token = 
-			// req.cookies.token ||
-			req.body.token ||
-			// req.header("Authorization").replace("Bearer ", "");
+    // Extracting JWT from request cookies, body or header
+		const token =
+    req.cookies.token ||
+    req.body.token ||
+    req.header("Authorization").replace("Bearer ", "");
 
     //if token not present give response
-    console.log("token",token)
+    console.log("token ",token)
     if (!token) {
       errorResponse.message = "Token is missing";
       return res
@@ -33,13 +33,13 @@ exports.auth = async (req,res,next) => {
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ errorResponse });
     }
+    next()
   } catch (error) {
     errorResponse.message = "Something went wrong while check authentication of token";
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ errorResponse });
   }
-  next()
 };
 
 // is Student or not
@@ -77,14 +77,14 @@ exports.isInstructor = async (req,res,next) => {
 
 exports.isAdmin = async (req,res,next) => {
   try {
-    if(req.user.accountType !== "isAdmin") {
+    if(req.user.accountType !== "Admin") {
       errorResponse.message = "this is only for isAdmin"
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR),json({errorResponse})
     }
 
     next();
   } catch (error) {
-      errorResponse.message = "Something went wrong while check is Student of not ";
+      errorResponse.message = "Something went wrong while check is Admin of not ";
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ errorResponse });

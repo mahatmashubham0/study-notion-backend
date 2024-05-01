@@ -1,8 +1,9 @@
 const { errorResponse, SuccessResponse } = require("../utils/common");
-const { sectionServices, courseServices } = require("../services");
+const Section = require("../models/Section");
 const Course = require("../models/Course");
+const {StatusCodes} = require('http-status-codes')
 
-const createSection = async () => {
+const createSection = async (req,res) => {
   try {
     // get data from ui
     const { sectionName, courseId } = req.body;
@@ -16,7 +17,7 @@ const createSection = async () => {
     }
 
     //create the section
-    const section = await sectionServices.createSection({ sectionName });
+    const section = await Section.create({ sectionName });
 
     // update the course table with section objectId
     const updatedCourse = await Course.findByIdAndUpdate(
@@ -30,7 +31,7 @@ const createSection = async () => {
     );
     // return response
     SuccessResponse.message = "Sucessfully created the New Section";
-    SuccessResponse.data = updatedCourse;
+    SuccessResponse.data = {section , updatedCourse};
     return res.status(StatusCodes.CREATED).json({ SuccessResponse });
   } catch (error) {
     errorResponse.message = "error generating while creatig Section";
@@ -41,7 +42,8 @@ const createSection = async () => {
   }
   };
 
-const updateSection = async () => {
+
+const updateSection = async (req,res) => {
     try {
       // get data from ui
       const { sectionName, sectionId } = req.body;
@@ -72,7 +74,7 @@ const updateSection = async () => {
   };
 
 
-const deleteSection = async () => {
+const deleteSection = async (req,res) => {
     try {
       // get data from ui
       const {sectionId } = req.params;
@@ -102,7 +104,7 @@ const deleteSection = async () => {
   };
 
 
-const getAllSections = async () => {
+const getAllSections = async (req,res) => {
     try {
       const sections = sectionServices.getAllSections();
       SuccessResponse.data = sections;

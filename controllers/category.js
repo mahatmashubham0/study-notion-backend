@@ -32,14 +32,14 @@ const createCategory = async (req, res) => {
   }
 };
 
-const getAllCategories = async () => {
+const getAllCategories = async (req,res) => {
   try {
-    const categories = tagServices.getAllTags();
+    const categories = await Category.find();
     SuccessResponse.data = categories;
     SuccessResponse.message = "Sucessfully get all the tag";
     return res.status(StatusCodes.CREATED).json({ SuccessResponse });
   } catch (error) {
-    errorResponse.message = "error generating while fetchig all tags";
+    errorResponse.message = "error generating while fetchig all categories";
     errorResponse.error = error;
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -47,7 +47,7 @@ const getAllCategories = async () => {
   }
 };
 
-const categoryPageDetails = async () => {
+const categoryPageDetails = async (req,res) => { // it is used for fetching course according the categories
   try {
     // get categoryId
     const { categoryId } = req.body;

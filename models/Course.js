@@ -36,9 +36,13 @@ const courseSchema = mongoose.Schema({
     type: String,
   },
   tag: {
+    type: [String],
+    required: true,
+  },
+  category: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: "Tag",
+    ref: "Category",
   },
   studentEnrolled: [
     {
@@ -47,6 +51,14 @@ const courseSchema = mongoose.Schema({
       ref: "User",
     },
   ],
+  status: {
+    type: String,
+    enum: ["Draft", "Published"],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 // this user is exactly User model and struture of user table and inside this user ("Section" , sectionSchema) it is name of collection
